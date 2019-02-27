@@ -2,7 +2,9 @@ package Maze;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
@@ -23,7 +25,7 @@ public class MazeGUI extends JFrame {
 	JButton ResetButton;
 	JButton ResetPathButton;
 	JButton SaveMazeButton;
-	
+	JButton GetSavedMazeButton;
 	JButton Solve;
 	ButtonGroup RadioGroup = new ButtonGroup();
 	JRadioButton Player = new JRadioButton("Player");
@@ -49,6 +51,7 @@ public class MazeGUI extends JFrame {
 		ResetButton = new JButton("Reset");
 		ResetPathButton = new JButton("Reset Path");
 		SaveMazeButton = new JButton("Save Maze");
+		GetSavedMazeButton = new JButton("Get Maze");
 		Solve = new JButton("Solve");
 		sizeField = new JTextField(10);
 		
@@ -89,6 +92,7 @@ public class MazeGUI extends JFrame {
 		ControlPanel.add(ResetButton);
 		ControlPanel.add(ResetPathButton);
 		ControlPanel.add(SaveMazeButton);
+		ControlPanel.add(GetSavedMazeButton);
 		ControlPanel.setVisible(true);
 		fillMaze(size);
 		ResizeHandler resizeHandler = new ResizeHandler();
@@ -98,6 +102,8 @@ public class MazeGUI extends JFrame {
 		ResetPathButton.addActionListener(new ResetPathHandler());
 
 		SaveMazeButton.addActionListener(new SavingHandler());
+
+		GetSavedMazeButton.addActionListener(new RetrieveHandler());
 		Solve.addActionListener(new SolveHandler());
 	}
 
@@ -110,6 +116,21 @@ public class MazeGUI extends JFrame {
 				cell[i][j].j = j;
 				cell[i][j].setBackground(Color.WHITE);
 				cell[i][j].state = 0;
+				cell[i][j].addActionListener(new ColoringHandler(i, j));
+				MazePanel.add(cell[i][j]);
+			}
+		}
+	}
+	
+	void fillMaze(MazeCell[][] newCell) {
+		cell=new MazeCell[size][size];
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				cell[i][j] = newCell[i][j];
+				cell[i][j].i = i;
+				cell[i][j].j = j;
+				cell[i][j].setBackground(newCell[i][j].getBackground());
+				cell[i][j].state = newCell[i][j].state;
 				cell[i][j].addActionListener(new ColoringHandler(i, j));
 				MazePanel.add(cell[i][j]);
 			}
@@ -163,6 +184,36 @@ public class MazeGUI extends JFrame {
 		        oos.writeObject(cell);
 		        oos.close();
 		        fos.close();
+				SwingUtilities.updateComponentTreeUI(MazePanel);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				System.out.println(e.toString());
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private class RetrieveHandler implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			try {
+				JFileChooser fc=new JFileChooser();
+				MazePanel.removeAll();
+				
+				fc.setDialogTitle("Choose Maze");
+				fc.setCurrentDirectory(new java.io.File("F:\\Year2\\Java\\MazeSolver"));
+				if(fc.showOpenDialog(GetSavedMazeButton)==JFileChooser.APPROVE_OPTION)
+				{
+					FileInputStream fis = new FileInputStream(fc.getSelectedFile().getAbsoluteFile());
+			        ObjectInputStream ois = new ObjectInputStream(fis);
+			        cell=(MazeCell[][]) ois.readObject();
+			        size=cell[0].length;
+			        fillMaze(cell);			        
+			        MazePanel.setLayout(new GridLayout(size, size));
+			        ois.close();
+			        fis.close();
+				}
+				
 				SwingUtilities.updateComponentTreeUI(MazePanel);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
