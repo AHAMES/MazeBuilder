@@ -106,20 +106,40 @@ public class MazeGUI extends JFrame {
 		}
 	}
 	
-	
-	
+	private class ResetPathHandler implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			try {
 
-	void printResult(MazeCell[][] r) {
-		cell = new MazeCell[size][size];
-
-		for (int i = 0; i < size; i++) {
-			for (int j = 0; j < size; j++) {
-				cell[i][j] = r[i][j];
-				cell[i][j].addActionListener(new ColoringHandler(i, j));
-				MazePanel.add(cell[i][j]);
+				MazePanel.removeAll();
+				MazePanel.setLayout(new GridLayout(size, size));
+				for (int i=0;i<size;i++)
+				{
+					for(int j=0;j<size;j++)
+					{
+						if(cell[i][j].state==4)
+						{
+							cell[i][j].setBackground(Color.WHITE);
+							cell[i][j].state=0;
+							endi=starti;
+							endj=startj;
+							
+						}
+						MazePanel.add(cell[i][j]);
+					}
+				}
+				SwingUtilities.updateComponentTreeUI(MazePanel);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				System.out.println(e.toString());
+				e.printStackTrace();
 			}
 		}
 	}
+
+	
+
+	
 
 	private class ColoringHandler implements ActionListener {
 		int i, j;
@@ -203,32 +223,7 @@ public class MazeGUI extends JFrame {
 		}
 	}
 	
-	private class ResetPathHandler implements ActionListener {
-		@Override
-		public void actionPerformed(ActionEvent event) {
-			try {
-
-				for (int i=0;i<size;i++)
-				{
-					for(int j=0;j<size;j++)
-					{
-						if(cell[i][j].state==4)
-						{
-							cell[i][j].state=0;
-							cell[i][j].setBackground(Color.WHITE);
-							MazePanel.add(cell[i][j]);
-						}
-					}
-				}
-				SwingUtilities.updateComponentTreeUI(MazePanel);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				System.out.println(e.toString());
-				e.printStackTrace();
-			}
-		}
-	}
-
+	
 	private class SolveHandler implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent event) {
