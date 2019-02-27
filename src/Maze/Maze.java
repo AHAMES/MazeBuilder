@@ -1,8 +1,7 @@
 package Maze;
 
-
 public class Maze {
-	MazeCell Maze[][];
+	int Maze[][];
 
 	int CurrentX;
 	int CurrentY;
@@ -11,11 +10,16 @@ public class Maze {
 	int finishPointX;
 	int finishPointY;
 	int size;
-	int penalties = 0;
 
 	public Maze(MazeCell m[][], int Size, int Sx, int Sy, int Ex, int Ey) {
-		Maze = m;
+		
 		size = Size;
+		Maze =new int[size][size];
+		for(int i=0;i<Size;i++)
+		{
+			for(int j=0;j<Size;j++)
+			Maze[i][j]=m[i][j].state;
+		}
 		StartX = Sx;
 		StartY = Sy;
 		CurrentX = Sx;
@@ -24,37 +28,31 @@ public class Maze {
 		finishPointY = Ey;
 	}
 
-	void addPenalty(int futureX, int futureY) {
-		if (futureX < 0 || futureX >= size || futureY < 0 || futureY >= size) {
-			penalties++;
-			return;
-		} else if (Maze[futureX][futureY].state == 1) {
-			penalties++;
-		} else {
-			CurrentX = futureX;
-			CurrentY = futureY;
-		}
+	void changePosition(int futureX, int futureY) {
+
+		CurrentX = futureX;
+		CurrentY = futureY;
 
 	}
 
 	void moveUP() {
 		int futureY = CurrentY + 1;
-		addPenalty(CurrentX, futureY);
+		changePosition(CurrentX, futureY);
 	}
 
 	void moveDown() {
 		int futureY = CurrentY - 1;
-		addPenalty(CurrentX, futureY);
+		changePosition(CurrentX, futureY);
 	}
 
 	void moveLeft() {
 		int futureX = CurrentX - 1;
-		addPenalty(futureX, CurrentY);
+		changePosition(futureX, CurrentY);
 	}
 
 	void moveRight() {
 		int futureX = CurrentX + 1;
-		addPenalty(futureX, CurrentY);
+		changePosition(futureX, CurrentY);
 	}
 
 	void resetPosition() {

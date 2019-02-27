@@ -2,6 +2,8 @@ package Maze;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
+
 import javax.swing.*;
 
 public class MazeGUI extends JFrame {
@@ -15,6 +17,7 @@ public class MazeGUI extends JFrame {
 	Container ContentPanel;
 	JButton ResizeButton;
 	JButton ResetButton;
+	JButton ResetPathButton;
 	JButton Solve;
 	ButtonGroup RadioGroup = new ButtonGroup();
 	JRadioButton Player = new JRadioButton("Player");
@@ -38,6 +41,7 @@ public class MazeGUI extends JFrame {
 		ContentPanel = getContentPane();
 		ResizeButton = new JButton("Resize");
 		ResetButton = new JButton("Reset");
+		ResetPathButton = new JButton("Reset Path");
 		Solve = new JButton("Solve");
 		sizeField = new JTextField(10);
 		
@@ -76,12 +80,14 @@ public class MazeGUI extends JFrame {
 		ControlPanel.add(Wall);
 		ControlPanel.add(Solve);
 		ControlPanel.add(ResetButton);
+		ControlPanel.add(ResetPathButton);
 		ControlPanel.setVisible(true);
 		fillMaze(size);
 		ResizeHandler resizeHandler = new ResizeHandler();
 
 		ResizeButton.addActionListener(resizeHandler);
 		ResetButton.addActionListener(new ResetHandler());
+		ResetPathButton.addActionListener(new ResetPathHandler());
 		Solve.addActionListener(new SolveHandler());
 	}
 
@@ -99,6 +105,9 @@ public class MazeGUI extends JFrame {
 			}
 		}
 	}
+	
+	
+	
 
 	void printResult(MazeCell[][] r) {
 		cell = new MazeCell[size][size];
@@ -193,6 +202,32 @@ public class MazeGUI extends JFrame {
 			}
 		}
 	}
+	
+	private class ResetPathHandler implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			try {
+
+				for (int i=0;i<size;i++)
+				{
+					for(int j=0;j<size;j++)
+					{
+						if(cell[i][j].state==4)
+						{
+							cell[i][j].state=0;
+							cell[i][j].setBackground(Color.WHITE);
+							MazePanel.add(cell[i][j]);
+						}
+					}
+				}
+				SwingUtilities.updateComponentTreeUI(MazePanel);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				System.out.println(e.toString());
+				e.printStackTrace();
+			}
+		}
+	}
 
 	private class SolveHandler implements ActionListener {
 		@Override
@@ -201,7 +236,16 @@ public class MazeGUI extends JFrame {
 				int Mazesize = size;
 			
 				Maze m = new Maze(cell, Mazesize, starti, startj, endi, endj);
-				
+				DFS dfs=new DFS(size);
+				ArrayList<Integer> path=new ArrayList<Integer>();
+				dfs.solve(m.Maze, m.StartX, m.StartY, path);
+				for(int i=0;i<path.size();i+=2)
+				{
+					int pathX=path.get(i);
+					int pathY=path.get(i+1);
+					cell[pathX][pathY].state=4;
+					cell[pathX][pathY].setBackground(Color.GREEN);
+				}
 				
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
