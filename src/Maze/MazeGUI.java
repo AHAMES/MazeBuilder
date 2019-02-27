@@ -2,7 +2,11 @@ package Maze;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+
+import javax.swing.JOptionPane;
 
 import javax.swing.*;
 
@@ -18,6 +22,8 @@ public class MazeGUI extends JFrame {
 	JButton ResizeButton;
 	JButton ResetButton;
 	JButton ResetPathButton;
+	JButton SaveMazeButton;
+	
 	JButton Solve;
 	ButtonGroup RadioGroup = new ButtonGroup();
 	JRadioButton Player = new JRadioButton("Player");
@@ -42,6 +48,7 @@ public class MazeGUI extends JFrame {
 		ResizeButton = new JButton("Resize");
 		ResetButton = new JButton("Reset");
 		ResetPathButton = new JButton("Reset Path");
+		SaveMazeButton = new JButton("Save Maze");
 		Solve = new JButton("Solve");
 		sizeField = new JTextField(10);
 		
@@ -81,6 +88,7 @@ public class MazeGUI extends JFrame {
 		ControlPanel.add(Solve);
 		ControlPanel.add(ResetButton);
 		ControlPanel.add(ResetPathButton);
+		ControlPanel.add(SaveMazeButton);
 		ControlPanel.setVisible(true);
 		fillMaze(size);
 		ResizeHandler resizeHandler = new ResizeHandler();
@@ -88,6 +96,8 @@ public class MazeGUI extends JFrame {
 		ResizeButton.addActionListener(resizeHandler);
 		ResetButton.addActionListener(new ResetHandler());
 		ResetPathButton.addActionListener(new ResetPathHandler());
+
+		SaveMazeButton.addActionListener(new SavingHandler());
 		Solve.addActionListener(new SolveHandler());
 	}
 
@@ -105,29 +115,54 @@ public class MazeGUI extends JFrame {
 			}
 		}
 	}
+	void resetPath()
+	{
+		MazePanel.removeAll();
+		MazePanel.setLayout(new GridLayout(size, size));
+		for (int i=0;i<size;i++)
+		{
+			for(int j=0;j<size;j++)
+			{
+				if(cell[i][j].state==4)
+				{
+					cell[i][j].setBackground(Color.WHITE);
+					cell[i][j].state=0;
+					endi=starti;
+					endj=startj;
+					
+				}
+				MazePanel.add(cell[i][j]);
+			}
+		}
+	}
 	
 	private class ResetPathHandler implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			try {
-
-				MazePanel.removeAll();
-				MazePanel.setLayout(new GridLayout(size, size));
-				for (int i=0;i<size;i++)
-				{
-					for(int j=0;j<size;j++)
-					{
-						if(cell[i][j].state==4)
-						{
-							cell[i][j].setBackground(Color.WHITE);
-							cell[i][j].state=0;
-							endi=starti;
-							endj=startj;
-							
-						}
-						MazePanel.add(cell[i][j]);
-					}
-				}
+				resetPath();
+				
+				SwingUtilities.updateComponentTreeUI(MazePanel);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				System.out.println(e.toString());
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private class SavingHandler implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			try {
+				resetPath();
+				String fileName=JOptionPane.showInputDialog("Write Name of the Maze"); 
+				FileOutputStream fos=new FileOutputStream(fileName+".txt");
+		        ObjectOutputStream oos=new ObjectOutputStream(fos);
+		        
+		        oos.writeObject(cell);
+		        oos.close();
+		        fos.close();
 				SwingUtilities.updateComponentTreeUI(MazePanel);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
